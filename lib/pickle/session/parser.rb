@@ -13,13 +13,13 @@ module Pickle
       end
 
       def parse_field_with_model(field)
-        if session && field =~ /^(\w+): #{capture_model}$/
-          {$1 => session.model!($2)}
+        if session && field =~ /^(\w+): #{ capture_model}$/
+          $1 == $1.pluralize ? { $1 => [session.model!($2)]} : { $1 => session.model!($2)}
         else
           parse_field_without_model(field)
         end
-      end    
-      
+      end
+
       def parse_hash(hash)
         hash.inject({}) do |parsed, (key, val)|
           if session && val =~ /^#{capture_model}$/

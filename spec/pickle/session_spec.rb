@@ -271,7 +271,7 @@ describe Pickle::Session do
 
       it_should_behave_like "after storing a single user"
     end
-    
+
     it "should cope with spaces in the factory name (ie. it should make it canonical)" do
       pickle_parser.stub!(:canonical).and_return('user')
       pickle_parser.should_receive(:canonical).with('u ser').and_return('user')
@@ -376,6 +376,10 @@ describe Pickle::Session do
       lambda { pickle_parser.parse_fields('author: user "JIM"') }.should raise_error
     end
 
+    it "#parser.parse_fields 'users: user \"me\"' should return {\"users\" => [<user>]}" do
+      pickle_parser.parse_fields('users: user "me"').should == {"users" => [user]}
+    end
+
     it "#parser.parse_fields 'author: the user' should return {\"author\" => <user>}" do
       pickle_parser.parse_fields('author: the user').should == {"author" => user}
     end
@@ -412,7 +416,7 @@ describe Pickle::Session do
       let :ar_class do
         mock('ActiveRecord', :column_names => ['user_id', 'user_type'], :const_get => ActiveRecord::Base::PickleAdapter)
       end
-            
+
       it "should return {'user_id' => <the user.id>, 'user_type' => <the user.base_class>}" do
         user.class.should_receive(:base_class).and_return(mock('User base class', :name => 'UserBase'))
         convert_models_to_attributes(ar_class, :user => user).should == {'user_id' => user.id, 'user_type' => 'UserBase'}
